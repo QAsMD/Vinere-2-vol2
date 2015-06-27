@@ -1,1 +1,3 @@
-Cryptanalysis of RSA with Private Key d Less than N0.292
+Cryptanalysis of RSA with Private Key d Less than N^0.292
+
+Page 62 at http://theory.stanford.edu/~gdurf/durfee-thesis-phd.pdf

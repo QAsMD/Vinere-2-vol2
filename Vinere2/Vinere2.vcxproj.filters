@@ -40,10 +40,10 @@
     <ClInclude Include="flintpp.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="stdafx.h">
+    <ClInclude Include="targetver.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
+    <ClInclude Include="stdafx.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

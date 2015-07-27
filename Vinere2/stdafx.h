@@ -22,3 +22,4 @@
 #include <windows.h>
 #include <omp.h>
 #include <random>
+#include "main.h"

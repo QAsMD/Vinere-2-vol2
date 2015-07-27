@@ -1,28 +1,30 @@
 #pragma once
 #include "stdafx.h"
 
-//#define DBG_PRINT
-#define KEY_TXT_PRINT
-#define MAXIMUM_RANDOM 100
-#define KEY_NOT_FOUND "-1"
-
 using namespace std;
 
+void extended_euclid(LINT a, LINT b, LINT *x, LINT *y, LINT *d);
+void Vinere(LINT E, LINT N, LINT *D, int *key_index);
+void Vulnerable_Generator(LINT p, LINT q, LINT *E, LINT *N, LINT *origin_D);
 
 /*
 Function extended_euclid
-This function calculates coefficients a, b and GCD(a,b)
-in comparison a*x+b*y=GCD(a,b)
-The answer is stored three LINT: x,y,d
+
+	This function calculates coefficients a, b and GCD(a,b)
+	in comparison a*x+b*y=GCD(a,b)
+	The answer is stored three LINT: x,y,d
+
 Arguments:
-a - the first coefficient in comparison
-b - the second coefficient in comparison
-x - the first variable in comparison
-y - the second variable in comparison
-d - greatest common divisor of a and b
+IN:
+	a - the first coefficient in comparison
+	b - the second coefficient in comparison
+OUT:
+	x - the first variable in comparison
+	y - the second variable in comparison
+	d - greatest common divisor of a and b
 
 Return value:
-None
+	None
 */
 
 void extended_euclid(
@@ -57,16 +59,20 @@ void extended_euclid(
 
 /*
 Function Vinere
-This function calculates the private part of key
-with using open part of key (E,N)
-The answer is the private part of key D
+
+	This function calculates the private part of key
+	with using open part of key (E,N)
+	The answer is the private part of key D
+
 Arguments:
-E - the first part of public key
-N - the second part of public key
-D - the part of private key
+IN:
+	E - the first part of public key
+	N - the second part of public key
+OUT:
+	D - the part of private key
 
 Return value:
-None
+	None
 */
 
 void Vinere(
@@ -130,16 +136,23 @@ void Vinere(
 
 /*
 Function Vulnerable_Generator
-This function recieves public part of key from
-couple p,q
-The answer is the public part of key E,N
+
+	This function recieves public part of key from
+	couple p,q
+	The answer is the public part of key E,N
+
 Arguments:
-primes_vector - vector primes
-*E - the first part of public key
-*N - the second part of public key
+
+IN:
+	p - first prime
+	q - second prime
+OUT:
+	*E - the first part of public key
+	*N - the second part of public key
+	*origin_D - private key
 
 Return value:
-None
+	None
 */
 
 void Vulnerable_Generator(
@@ -159,7 +172,9 @@ void Vulnerable_Generator(
 	{
 		extended_euclid(limitD, eiler_func, E, &koef, &NOD); // E - output
 
-		if ((*E < *N) && (NOD == 1) && (gcd(*E, eiler_func) == 1))
+		LINT one = LINT(1);
+
+		if ((*E < *N) && (NOD == 1) && (gcd(*E, eiler_func) == 1) && ((*E) != one))
 		{
 #ifdef DBG_PRINT
 			cout << endl << "Eiler: " << eiler_func.decstr() << endl;
@@ -185,12 +200,14 @@ by generating random number and taking
 next nearest prime one
 
 Arguments:
-length - the number of bits in result prime numbers
-P - first number
-Q - second number
+IN:
+	length - the number of bits in result prime numbers
+OUT:
+	P - first number
+	Q - second number
 
 Return value:
-None
+	None
 */
 void Prime_Number_Generator(
 	__in int length,
@@ -266,6 +283,7 @@ void Generalized_Wiener_Attack(
 			LINT potential_P;
 			temp_N = N.sqr();
 			temp_N = temp_N.sqr();
+
 			s = N + 1 - (E*potential_D[i]) / potential_K[i];
 			t = (s*s - 4 * N);
 			t = t.sqr();
@@ -275,9 +293,19 @@ void Generalized_Wiener_Attack(
 				potential_P = p_wave + (2 * k + 1)*temp_N;
 
 				//Coppersmith algorithm
+				//
 
 				cout << "Result q: " << (N / potential_P).decstr() << endl;
 			}
+
+			cout << "E: " << E.decstr();
+			cout << " N: " << N.decstr();
+			for (unsigned int count = 0; count < i; count++)
+			{
+				cout << "Numerator : " << potential_K[count].decstr() << endl;
+				cout << "Divisor : " << potential_D[count].decstr() << endl;
+			}
+
 			cout << "Key found index " << i << endl;
 			return;
 		}
@@ -286,6 +314,13 @@ void Generalized_Wiener_Attack(
 		{
 			*p = KEY_NOT_FOUND;
 			*q = KEY_NOT_FOUND;
+			cout << "E: " << E.decstr();
+			cout << " N: " << N.decstr();
+			for (unsigned int count = 0; count < i; count++)
+			{
+				cout << "Numerator : " << potential_K[count].decstr() << endl;
+				cout << "Divisor : " << potential_D[count].decstr() << endl;
+			}
 			cout << "Key not found" << endl;
 			return;
 		}
@@ -325,7 +360,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		switch (choice) {
 		case '1':
 		{
-					vector<int> keys = { 64, 128, 256, 512, 1024, 2048 /*4096*/ };
+					vector<int> keys = {9};// 64, 128, 256, 512, 1024, 2048 /*4096*/ };
 
 					for (unsigned int counter = 0; counter < keys.size(); counter++)
 					{
@@ -338,6 +373,9 @@ int _tmain(int argc, _TCHAR* argv[])
 #endif
 						int time = GetTickCount();
 						Vinere(E, N, &D, &key_index);
+						LINT p;
+						LINT q;
+						Generalized_Wiener_Attack(E, N, &p, &q);
 #ifdef DBG_PRINT
 						cout << "The key is: " << D.decstr() << endl;
 #endif

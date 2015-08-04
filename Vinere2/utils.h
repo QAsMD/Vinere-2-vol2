@@ -9,6 +9,7 @@ using namespace std;
 #define ZERO_COEFF 0x02
 #define FAIL 0x03
 #define LEFT_ENDLESS_LOOP 0x04
+#define EXCEEDED_LIMIT 0x05
 #define UNINITIALIZED 0xFF
 
 ERROR_CODE extended_euclid(LINT a, LINT b, LINT *x, LINT *y, LINT *d);

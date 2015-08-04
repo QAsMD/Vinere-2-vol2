@@ -7,9 +7,14 @@ ERROR_CODE Generalized_Wiener_Attack(
 	__in LINT E,
 	__in LINT N,
 	__out LINT *p,
-	__out LINT *q
+	__out LINT *q,
+	__out LINT *D
 	)
 {
+#ifdef DBG_PRINT
+	cout << "Starting GWA with:\nE:" << E.decstr() << endl;
+	cout << "N:" << N.decstr() << endl;
+#endif
 	vector<LINT> P;
 	vector<LINT> V;
 	vector<LINT> H;
@@ -19,9 +24,9 @@ ERROR_CODE Generalized_Wiener_Attack(
 	Z.push_back(N);
 	vector<LINT> potential_D;
 	vector<LINT> potential_K;
-	LINT limitD = root(root(N / 3)) - 1;
+	LINT limitD = root(root(N))/3 - 1;
 
-	LINT M = "10010101001011111";
+	LINT M = LINT("10110100");
 	LINT LC = mexp(M, E, N);
 
 //Continued fraction
@@ -51,58 +56,60 @@ ERROR_CODE Generalized_Wiener_Attack(
 			potential_K.push_back(potential_K[i - 1] * V[i] + potential_K[i - 2]);
 
 		}
+#ifdef DBG_PRINT
+		cout << "Numerator : " << potential_K[i].decstr() << endl;
+		cout << "Divisor : " << potential_D[i].decstr() << endl;
+#endif
 
 		LINT M2 = mexp(LC, potential_D[i], N);
 
 		if (M == M2)
 		{
 //Found private key
+			///New part
 			LINT s;
 			LINT t;
 			LINT p_wave;
-			LINT temp_N;
-			LINT potential_P;
-			temp_N = N.sqr();
-			temp_N = temp_N.sqr();
 
 			s = N + 1 - (E*potential_D[i]) / potential_K[i];
 			t = (s*s - 4 * N);
-			t = t.sqr();
+			t = root(t);
 			p_wave = (s + t) / 2;
-			for (int k = -3; k < 3; k++)
-			{
-				potential_P = p_wave + (2 * k + 1)*temp_N;
+			cout << "Result p = " << p_wave.decstr() << endl;
+			*D = potential_D[i];
+			*p = p_wave;
+			*q = N / p_wave;
 
-				//Coppersmith algorithm
-				//
-
-				cout << "Result q: " << (N / potential_P).decstr() << endl;
-			}
-
-			cout << "E: " << E.decstr();
-			cout << " N: " << N.decstr();
-			for (unsigned int count = 0; count < i; count++)
-			{
-				cout << "Numerator : " << potential_K[count].decstr() << endl;
-				cout << "Divisor : " << potential_D[count].decstr() << endl;
-			}
-
+#ifdef DBG_PRINT
 			cout << "Key found index " << i << endl;
+
+			cout << "Result q = " << (N / p_wave).decstr() << endl;
+#endif
+			//for (int k = -3; k < 3; k++)
+			//{
+			//	potential_P = p_wave + (2 * k + 1)*temp_N;
+			//	if (mod(N, potential_P) == LINT(0))
+			//	{
+			//		cout << "found P: " << potential_P.decstr() << endl;
+			//		cout << "found Q: " << (N / potential_P).decstr() << endl;
+			//	}
+			//	////Coppersmith algorithm
+			//	////
+			//}
 			return SUCCESS;
 		}
 
 		if (potential_D[i] > limitD)
 		{
+#ifdef DBG_PRINT
+			cout << "poten_D: " << potential_D[i].decstr() << endl;
+			cout << "limitD: " << limitD.decstr() << endl;
+#endif
 			*p = KEY_NOT_FOUND;
 			*q = KEY_NOT_FOUND;
 			cout << "E: " << E.decstr();
 			cout << " N: " << N.decstr();
-			for (unsigned int count = 0; count < i; count++)
-			{
-				cout << "Numerator : " << potential_K[count].decstr() << endl;
-				cout << "Divisor : " << potential_D[count].decstr() << endl;
-			}
-			return FAIL;
+			return EXCEEDED_LIMIT;
 		}
 	}
 	return LEFT_ENDLESS_LOOP;
@@ -118,6 +125,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	LINT P;
 	LINT Q;
 	LINT origin_D;
+	LINT origin_P;
+	LINT origin_Q;
 	int key_index = 0;
 
 #ifdef KEY_TXT_PRINT
@@ -140,33 +149,33 @@ int _tmain(int argc, _TCHAR* argv[])
 		switch (choice) {
 		case '1':
 		{
-					vector<int> keys = {32};// 64, 128, 256, 512, 1024, 2048 /*4096*/ };
+					vector<int> keys = { 4096 };//64, 128, 256, 512, 1024, 2048, 4096};
 
 					for (unsigned int counter = 0; counter < keys.size(); counter++)
 					{
 						status = Prime_Number_Generator(keys[counter], &P, &Q);
 						if (status != SUCCESS)
 							_CrtDbgBreak();
+						origin_P = P;
+						origin_Q = Q;
 						status = Vulnerable_Generator(P, Q, &E, &N, &origin_D);
 						if (status != SUCCESS)
 							_CrtDbgBreak();
 
-#ifdef DBG_PRINT
-						cout << "Starting Vinere attack with:\nE: " << E.decstr();
-						cout << "\nN: " << N.decstr() << endl;
-						cout << "\nD: " << origin_D.decstr();
-#endif
 						int time = GetTickCount();
-						LINT p;
-						LINT q;
-						status = Generalized_Wiener_Attack(E, N, &p, &q);
+						status = Generalized_Wiener_Attack(E, N, &P, &Q, &D);
 						if (status != SUCCESS)
 							_CrtDbgBreak();
 #ifdef DBG_PRINT
 						cout << "The key is: " << D.decstr() << endl;
+						cout << "P is " << P.decstr() << endl;
+						cout << "Q is " << Q.decstr() << endl;
 #endif
+						cout << "\norigin P: " << origin_P.decstr() << endl;
 						if (origin_D == D)
-							cout << "For key length " << keys[counter] << " Vinere succedeed in " << GetTickCount() - time << " ticks" << endl << "The key was " << key_index << " in the divisors array of corvengets" << endl;
+							cout << "For key length " << keys[counter] << " Vinere succedeed in " << GetTickCount() - time << " ticks" << endl;
+						if ((origin_P == P) && (origin_Q == Q))
+							cout << "Primes found correctly" << endl;
 
 #ifdef KEY_TXT_PRINT				
 						rez += E.decstr();
@@ -219,11 +228,11 @@ int _tmain(int argc, _TCHAR* argv[])
 						int time = GetTickCount();
 						LINT p;
 						LINT q;
-						Generalized_Wiener_Attack(lint_E, lint_N, &p, &q);
+						status = Generalized_Wiener_Attack(lint_E, lint_N, &p, &q, &output_D);
 						if (output_D != KEY_NOT_FOUND)
 						{
 							cout << "The key is: " << output_D.decstr() << endl;
-							cout << "For key length " << (line_E.length() + line_N.length()) << " Vinere succedeed in " << GetTickCount() - time << " ticks" << endl << "The key was " << key_index << " in the divisors array of corvengets" << endl;
+							cout << "For key length " << (line_E.length() + line_N.length()) << " Vinere succedeed in " << GetTickCount() - time << " ticks" << endl;
 						}
 						else
 						{

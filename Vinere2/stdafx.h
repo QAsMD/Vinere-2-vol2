@@ -21,4 +21,7 @@
 #include <windows.h>
 #include <omp.h>
 #include <random>
-#define DBG_PRINT
+#include <cstdlib>
+
+
+//#define DBG_PRINT

@@ -77,6 +77,7 @@ ERROR_CODE Prime_Number_Generator(
 	*P = nextprime(randl(length/2) + 1, 1);
 	*Q = nextprime(randl(length/2) + 1, 1);
 #ifdef DBG_PRINT
+	cout << "Finished generating primes" << endl;
 	cout << "P: " << (*P).decstr() << endl;
 	cout << "Q: " << (*Q).decstr() << endl;
 #endif
@@ -116,7 +117,7 @@ ERROR_CODE Vulnerable_Generator(
 
 	*N = mul(p, q);
 	LINT eiler_func = mul((p - 1), (q - 1));
-	LINT limitD = root(root((*N) / 3)) - 1;
+	LINT limitD = root(root(*N))/3 - 1;
 	for (; limitD > 0; limitD--)
 	{
 		extended_euclid(limitD, eiler_func, E, &koef, &NOD); // E - output

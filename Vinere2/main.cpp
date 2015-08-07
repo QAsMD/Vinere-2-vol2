@@ -215,12 +215,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						getline(myfile, line_N);
 						lint_N = LINT(line_N.c_str());
 
-						// For one-string keys with equal E and N length
-						//length = line.length();
-						//string str_E = line.substr(0, length/2);
-						//string str_N = line.substr(length / 2, length / 2);
-						//lint_E = LINT(str_E.c_str());
-						//lint_N = LINT(str_N.c_str());
+					
 #ifdef DBG_PRINT
 						cout << "Starting Vinere attack with E: " << lint_E.decstr();
 						cout << " and N: " << lint_N.decstr() << endl;

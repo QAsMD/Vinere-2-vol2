@@ -210,6 +210,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 					while (!myfile.eof())
 					{
+						output_D = KEY_NOT_FOUND;
 						getline(myfile, line_E);
 						lint_E = LINT(line_E.c_str());
 						getline(myfile, line_N);
@@ -222,17 +223,20 @@ int _tmain(int argc, _TCHAR* argv[])
 						//lint_E = LINT(str_E.c_str());
 						//lint_N = LINT(str_N.c_str());
 #ifdef DBG_PRINT
-						cout << "Starting Vinere attack with E: " << lint_E.decstr();
-						cout << " and N: " << lint_N.decstr() << endl;
+						cout << "Starting Vinere attack with E: " << lint_E << endl;
+						cout << " and N: " << lint_N << endl;
 #endif
 						int time = GetTickCount();
-						LINT p;
-						LINT q;
-						status = Generalized_Wiener_Attack(lint_E, lint_N, &p, &q, &output_D);
+						status = Generalized_Wiener_Attack(lint_E, lint_N, &P, &Q, &output_D);
+						if (status != SUCCESS)
+							_CrtDbgBreak();
+
 						if (output_D != KEY_NOT_FOUND)
 						{
 							cout << "The key is: " << output_D.decstr() << endl;
 							cout << "For key length " << (line_E.length() + line_N.length()) << " Vinere succedeed in " << GetTickCount() - time << " ticks" << endl;
+							cout << "P is " << P.decstr() << endl;
+							cout << "Q is " << Q.decstr() << endl;
 						}
 						else
 						{

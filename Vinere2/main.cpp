@@ -149,7 +149,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		switch (choice) {
 		case '1':
 		{
-					vector<int> keys = { 4096 };//64, 128, 256, 512, 1024, 2048, 4096};
+					vector<int> keys = { 4096, 4096, 4096 };//64, 128, 256, 512, 1024, 2048, 4096};
 
 					for (unsigned int counter = 0; counter < keys.size(); counter++)
 					{

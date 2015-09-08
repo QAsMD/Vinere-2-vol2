@@ -149,7 +149,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		switch (choice) {
 		case '1':
 		{
-					vector<int> keys = { 4096, 4096, 4096 };//64, 128, 256, 512, 1024, 2048, 4096};
+					vector<int> keys = { 512 };//64, 128, 256, 512, 1024, 2048, 4096};
 
 					for (unsigned int counter = 0; counter < keys.size(); counter++)
 					{
@@ -179,11 +179,11 @@ int _tmain(int argc, _TCHAR* argv[])
 
 #ifdef KEY_TXT_PRINT				
 						rez += E.decstr();
-						rez += "\n";
-						rez += N.decstr();
-						rez += "\n";
-						rez += D.decstr();
 						rez += "\n\n";
+						rez += N.decstr();
+					//	rez += "\n\n";
+						//rez += D.decstr();
+						rez += "\n\n\n";
 						FILE << rez;
 #endif
 					}
@@ -201,6 +201,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					LINT lint_E;
 					LINT lint_N;
 					LINT output_D;
+					string newLine;
 
 					if (!myfile.is_open())
 					{
@@ -212,9 +213,13 @@ int _tmain(int argc, _TCHAR* argv[])
 					{
 						output_D = KEY_NOT_FOUND;
 						getline(myfile, line_E);
+						getline(myfile,newLine);
 						lint_E = LINT(line_E.c_str());
 						getline(myfile, line_N);
+						getline(myfile, newLine);
 						lint_N = LINT(line_N.c_str());
+						getline(myfile,newLine);
+					
 
 					
 #ifdef DBG_PRINT
